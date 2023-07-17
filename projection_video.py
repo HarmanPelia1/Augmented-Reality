@@ -10,27 +10,27 @@ parser.add_argument('--video', help='Path to the video to be projected',
 args = parser.parse_args()
 
 video_path=args.video
-
-stream = cv2.VideoCapture(0)
+videostream = cv2.VideoCapture(0)   
 video = cv2.VideoCapture(video_path)
 dictionary = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
 parameters =  cv2.aruco.DetectorParameters_create()
 
-def find_and_warp(fram, source, cornerIds, dictionary,parameters):
+def find_and_warp(frame, source, cornerIds, dictionary, parameters):
     (imgH, imgW) = frame.shape[:2]
     (srcH, srcW) = source.shape[:2]
     markerCorners, markerIds, rejectedCandidates = cv2.aruco.detectMarkers(frame, dictionary, parameters=parameters)
-    if len(markerCorners) != 4:
-        markerIds = np.array([])
-    else:
-        markerIds = markerIds.flatten()
+    if len(markerCorners)!= 4:
+        markerIds = np.array([]) 
+    else: 
+        markerIds.flatten()
     refPts = []
     for i in cornerIds:
-        idx = np.squeeze(np.where(markerIds == i))
+        j = np.squeeze(np.where(markerIds == i))
         if j.size == 0:
             continue
         else:
-            j = j[0]
+            j = j[0]   
+
         markerCorners = np.array(markerCorners)
         #print(markerCorners)
         corner = np.squeeze(markerCorners[j])
@@ -44,10 +44,12 @@ def find_and_warp(fram, source, cornerIds, dictionary,parameters):
     (H, _) = cv2.findHomography(srcMat, dstMat)
     warped = cv2.warpPerspective(source, H, (imgW, imgH))
     mask = np.zeros((imgH, imgW), dtype="uint8")
-    cv2.fillConvexPoly(mask, dstMat.astype("int32"), (255, 255, 255), cv2.LINE_AA)
+    cv2.fillConvexPoly(mask, dstMat.astype("int32"), (255, 255, 255),
+        cv2.LINE_AA)
     maskScaled = mask.copy() / 255.0
     maskScaled = np.dstack([maskScaled] * 3)
-    warpedMultiplied = cv2.multiply(warped.astype("float"), maskScaled)
+    warpedMultiplied = cv2.multiply(warped.astype("float"),
+        maskScaled)
     imageMultiplied = cv2.multiply(frame.astype(float),
         1.0 - maskScaled)
     output = cv2.add(warpedMultiplied, imageMultiplied)
@@ -86,7 +88,3 @@ while True:
 
 cv2.destroyAllWindows()
 print("Done")
-    
-        
-        
-        
